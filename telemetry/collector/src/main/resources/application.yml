@@ -5,6 +5,10 @@ spring:
   application:
     name: collector
 
+grpc:
+  server:
+    port: 59091
+
 kafka:
   bootstrap-servers: localhost:9092
   topics:
