@@ -1,4 +1,4 @@
-package ru.yandex.practicum.telemetry.aggregator.deserializer;
+package ru.yandex.practicum.kafka.telemetry;
 
 import org.apache.avro.Schema;
 import org.apache.avro.io.BinaryDecoder;
