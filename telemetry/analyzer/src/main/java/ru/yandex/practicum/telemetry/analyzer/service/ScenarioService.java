@@ -38,7 +38,6 @@ public class ScenarioService {
     private final ConditionRepository conditionRepository;
     private final ActionRepository actionRepository;
 
-    @Transactional(readOnly = true)
     public List<ScenarioAddedEventAvro> getScenariosForHub(String hubId) {
         return scenarioRepository.findByHubId(hubId).stream()
                 .map(this::toAvro)
@@ -55,9 +54,10 @@ public class ScenarioService {
         scenario.setName(event.getName());
         scenario = scenarioRepository.save(scenario);
 
+        List<Condition> conditions = new ArrayList<>();
+        List<Sensor> conditionSensors = new ArrayList<>();
         for (ScenarioConditionAvro condAvro : event.getConditions()) {
-            Sensor sensor = getOrCreateSensor(condAvro.getSensorId(), hubId);
-
+            conditionSensors.add(getOrCreateSensor(condAvro.getSensorId(), hubId));
             Condition condition = new Condition();
             condition.setType(ConditionType.valueOf(condAvro.getType().name()));
             condition.setOperation(ConditionOperation.valueOf(condAvro.getOperation().name()));
@@ -67,29 +67,34 @@ public class ScenarioService {
                 condition.setBoolValue(b);
                 condition.setValue(b ? 1 : 0);
             }
-            condition = conditionRepository.save(condition);
-
+            conditions.add(condition);
+        }
+        List<Condition> savedConditions = conditionRepository.saveAll(conditions);
+        for (int i = 0; i < savedConditions.size(); i++) {
             ScenarioCondition sc = new ScenarioCondition();
-            sc.setId(new ScenarioConditionId(scenario.getId(), sensor.getId(), condition.getId()));
+            sc.setId(new ScenarioConditionId(scenario.getId(), conditionSensors.get(i).getId(), savedConditions.get(i).getId()));
             sc.setScenario(scenario);
-            sc.setSensor(sensor);
-            sc.setCondition(condition);
+            sc.setSensor(conditionSensors.get(i));
+            sc.setCondition(savedConditions.get(i));
             scenario.getConditions().add(sc);
         }
 
+        List<Action> actions = new ArrayList<>();
+        List<Sensor> actionSensors = new ArrayList<>();
         for (DeviceActionAvro actionAvro : event.getActions()) {
-            Sensor sensor = getOrCreateSensor(actionAvro.getSensorId(), hubId);
-
+            actionSensors.add(getOrCreateSensor(actionAvro.getSensorId(), hubId));
             Action action = new Action();
             action.setType(ActionType.valueOf(actionAvro.getType().name()));
             if (actionAvro.getValue() instanceof Integer v) action.setValue(v);
-            action = actionRepository.save(action);
-
+            actions.add(action);
+        }
+        List<Action> savedActions = actionRepository.saveAll(actions);
+        for (int i = 0; i < savedActions.size(); i++) {
             ScenarioAction sa = new ScenarioAction();
-            sa.setId(new ScenarioActionId(scenario.getId(), sensor.getId(), action.getId()));
+            sa.setId(new ScenarioActionId(scenario.getId(), actionSensors.get(i).getId(), savedActions.get(i).getId()));
             sa.setScenario(scenario);
-            sa.setSensor(sensor);
-            sa.setAction(action);
+            sa.setSensor(actionSensors.get(i));
+            sa.setAction(savedActions.get(i));
             scenario.getActions().add(sa);
         }
 
