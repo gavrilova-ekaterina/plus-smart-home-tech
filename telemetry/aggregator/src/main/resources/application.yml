@@ -1,11 +1,11 @@
 spring:
   application:
     name: aggregator
-
-kafka:
-  bootstrap-servers: localhost:9092
-  topics:
-    sensors: telemetry.sensors.v1
-    snapshots: telemetry.snapshots.v1
-  consumer:
-    group-id: aggregator
+  cloud:
+    config:
+      fail-fast: true
+      retry:
+        useRandomPolicy: true
+        max-interval: 6000
+  config:
+    import: configserver:http://localhost:8888
