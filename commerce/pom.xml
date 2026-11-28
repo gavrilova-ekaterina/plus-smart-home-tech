@@ -18,4 +18,19 @@
         <module>product-service</module>
     </modules>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <systemPropertyVariables>
+                        <spring.cloud.config.fail-fast>false</spring.cloud.config.fail-fast>
+                        <spring.cloud.config.discovery.enabled>false</spring.cloud.config.discovery.enabled>
+                    </systemPropertyVariables>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>

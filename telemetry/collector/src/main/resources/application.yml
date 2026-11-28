@@ -4,13 +4,21 @@ server:
 spring:
   application:
     name: collector
+  cloud:
+    config:
+      fail-fast: true
+      retry:
+        use-random-policy: true
+        max-interval: 6000
+      discovery:
+        enabled: true
+        serviceId: config-server
+  config:
+    import: "configserver:"
 
-grpc:
-  server:
-    port: 59091
-
-kafka:
-  bootstrap-servers: localhost:9092
-  topics:
-    sensors: telemetry.sensors.v1
-    hubs: telemetry.hubs.v1
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
