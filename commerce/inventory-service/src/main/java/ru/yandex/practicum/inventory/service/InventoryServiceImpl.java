@@ -67,7 +67,7 @@ public class InventoryServiceImpl implements InventoryService {
         }
         item.setReservedQuantity(item.getReservedQuantity() + request.quantity());
         repository.save(item);
-        return new ReserveResponse(true, item.getQuantity() - item.getReservedQuantity(), null);
+        return new ReserveResponse(true, item.getQuantity() - item.getReservedQuantity(), "Товар успешно зарезервирован");
     }
 
     private InventoryItem findByProductId(Long productId) {
